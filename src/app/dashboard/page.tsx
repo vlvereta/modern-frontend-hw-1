@@ -1,7 +1,8 @@
 import { cookies } from "next/headers";
-import AddTodoRow from "@/components/AddTodoRow";
-import { createClient } from "@/utils/supabase/server";
+import { addTodo } from "@/actions";
 import TodoRow from "@/components/TodoRow";
+import TodoFormRow from "@/components/TodoFormRow";
+import { createClient } from "@/utils/supabase/server";
 
 export default async function Dashboard() {
 	const cookieStore = await cookies();
@@ -18,7 +19,7 @@ export default async function Dashboard() {
 					<TodoRow key={todo.id} {...todo} />
 				))}
 			</ul>
-			<AddTodoRow />
+			<TodoFormRow onSubmit={addTodo} />
 		</>
 	);
 }

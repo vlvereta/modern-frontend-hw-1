@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Todo, TodoPriority } from "@/types";
 import { deleteTodo, finishTodo, updateTodo } from "@/actions";
+import TodoFormRow from "./TodoFormRow";
 
 const TodoRow: React.FC<Todo> = ({
 	id,
@@ -10,6 +11,7 @@ const TodoRow: React.FC<Todo> = ({
 	description,
 	until,
 	priority,
+	finished,
 }) => {
 	const priorityIcon = {
 		[TodoPriority.High]: "🔴",
@@ -19,58 +21,51 @@ const TodoRow: React.FC<Todo> = ({
 
 	const [editMode, setEditMode] = useState(false);
 
-	const handleUpdateClick = () => setEditMode(!editMode);
+	const handleEditClick = () => setEditMode(!editMode);
 
-	const handleAcceptUpdating = () => {
-		setEditMode(false);
+	const handleDismissEditing = () => setEditMode(false);
+
+	const handleUpdate = (payload: FormData) => {
+		updateTodo(id, payload).finally(() => setEditMode(false));
 	};
-
-	const handleDismissUpdating = () => setEditMode(false);
-
-	// const handleUpdate = (payload: FormData) => {
-	// 	updateTodo(id, payload).finally(() => setEditMode(false));
-	// };
 
 	const handleFinish = () => finishTodo(id);
 	const handleDelete = () => deleteTodo(id);
 
-	return (
-		<li className="flex items-center justify-between border-b py-2">
-			{editMode ? (
-				<>
-					<h3>Editing...</h3>
-					<div className="ml-4 flex space-x-2">
-						<button
-							className="text-green-500 hover:text-green-700"
-							onClick={handleAcceptUpdating}
-						>
-							Accept
-						</button>
-						<button
-							className="text-red-500 hover:text-red-700"
-							onClick={handleDismissUpdating}
-						>
-							Dismiss
-						</button>
-					</div>
-				</>
-			) : (
-				<>
-					<span className="flex-1">{name}</span>
-					<span className="flex-1 text-center truncate" title={description}>
-						{description}
-					</span>
-					<span className="flex-1 text-right">{until}</span>
-					<span className="ml-2">{priorityIcon}</span>
-				</>
-			)}
+	const textStyle = finished ? "line-through text-gray-500" : "";
 
-			{!editMode && (
+	if (editMode) {
+		return (
+			<TodoFormRow
+				todo={{
+					name,
+					description,
+					until,
+					priority,
+				}}
+				onCancel={handleDismissEditing}
+				onSubmit={handleUpdate}
+			/>
+		);
+	}
+
+	return (
+		<li
+			className={`flex items-center justify-between border-b py-2 ${textStyle}`}
+		>
+			<span className="flex-1">{name}</span>
+			<span className="flex-1 text-center truncate" title={description}>
+				{description}
+			</span>
+			<span className="flex-1 text-right">{until}</span>
+			<span className="ml-2">{priorityIcon}</span>
+
+			{!finished && (
 				<div className="ml-4 flex space-x-2">
 					<button
 						className="text-green-500 hover:text-green-700"
 						onClick={handleFinish}
-						disabled={editMode}
+						disabled={finished}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -89,7 +84,8 @@ const TodoRow: React.FC<Todo> = ({
 					</button>
 					<button
 						className="text-blue-500 hover:text-blue-700"
-						onClick={handleUpdateClick}
+						onClick={handleEditClick}
+						disabled={finished}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"
@@ -121,7 +117,7 @@ const TodoRow: React.FC<Todo> = ({
 					<button
 						className="text-red-500 hover:text-red-700"
 						onClick={handleDelete}
-						disabled={editMode}
+						disabled={finished}
 					>
 						<svg
 							xmlns="http://www.w3.org/2000/svg"

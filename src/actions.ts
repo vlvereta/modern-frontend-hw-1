@@ -44,7 +44,7 @@ export async function updateTodo(id: number, formData: FormData) {
 	};
 
 	console.log(`Updating todo with id ${id} with payload:`, payload);
-	await supabase.from("todos").insert(payload).eq("id", id);
+	await supabase.from("todos").update(payload).eq("id", id);
 
 	revalidatePath("/dashboard");
 }
