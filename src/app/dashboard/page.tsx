@@ -1,5 +1,7 @@
 import { cookies } from "next/headers";
+import AddTodoRow from "@/components/AddTodoRow";
 import { createClient } from "@/utils/supabase/server";
+import TodoRow from "@/components/TodoRow";
 
 export default async function Dashboard() {
 	const cookieStore = await cookies();
@@ -12,12 +14,11 @@ export default async function Dashboard() {
 		<>
 			<h2 className="text-2xl mb-4">Todos</h2>
 			<ul>
-				{todos.map((todo) => (
-					<li key={todo.id} className="border-b py-2">
-						{todo.name}
-					</li>
+				{todos?.map((todo) => (
+					<TodoRow key={todo.id} {...todo} />
 				))}
 			</ul>
+			<AddTodoRow />
 		</>
 	);
 }
