@@ -21,3 +21,6 @@ export interface CreateTodoRequestPayload {
 	priority: TodoPriority;
 	user_id: number;
 }
+
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+export interface UpdateTodoRequestPayload extends CreateTodoRequestPayload {}
