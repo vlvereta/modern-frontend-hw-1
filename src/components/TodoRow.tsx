@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Todo, TodoPriority } from "@/types";
 import { deleteTodo, finishTodo, updateTodo } from "@/actions";
 import TodoFormRow from "./TodoFormRow";
@@ -20,6 +20,15 @@ const TodoRow: React.FC<Todo> = ({
 	}[priority];
 
 	const [editMode, setEditMode] = useState(false);
+	const [locale, setLocale] = useState<string>("en-US");
+
+	// this functionality needed because of the SSR
+	// ReferenceError: navigator is not defined error occurs, why?
+	useEffect(() => {
+		if (typeof navigator !== "undefined") {
+			setLocale(navigator.language);
+		}
+	}, []);
 
 	const handleEditClick = () => setEditMode(!editMode);
 
@@ -49,6 +58,10 @@ const TodoRow: React.FC<Todo> = ({
 		);
 	}
 
+	const untilDateText = until
+		? new Date(until).toLocaleDateString(locale)
+		: undefined;
+
 	return (
 		<li
 			className={`flex items-center justify-between border-b py-2 ${textStyle}`}
@@ -57,7 +70,7 @@ const TodoRow: React.FC<Todo> = ({
 			<span className="flex-1 text-center truncate" title={description}>
 				{description}
 			</span>
-			<span className="flex-1 text-right">{until}</span>
+			<span className="flex-1 text-right">{untilDateText}</span>
 			<span className="ml-2">{priorityIcon}</span>
 
 			{!finished && (

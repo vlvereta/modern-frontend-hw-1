@@ -34,12 +34,13 @@ const TodoFormRow: React.FC<TodoFormRowProps> = ({
 		todo?.until ? new Date(todo.until) : undefined
 	);
 
-	console.log("selectedDate", selectedDate);
-
 	return (
-		<form className="mt-4 flex space-x-2 items-end" action={onSubmit}>
+		<form
+			className={`${!isEditMode ? "mt-4" : "mt-2"} flex space-x-2 items-end`}
+			action={onSubmit}
+		>
 			<div className="grid w-full max-w-sm items-center gap-1.5">
-				<Label htmlFor="name">Name</Label>
+				{!isEditMode && <Label htmlFor="name">Name</Label>}
 				<Input
 					type="text"
 					id="name"
@@ -49,7 +50,7 @@ const TodoFormRow: React.FC<TodoFormRowProps> = ({
 				/>
 			</div>
 			<div className="grid w-full max-w-sm items-center gap-1.5">
-				<Label htmlFor="description">Description</Label>
+				{!isEditMode && <Label htmlFor="description">Description</Label>}
 				<Input
 					type="text"
 					id="description"
@@ -60,7 +61,7 @@ const TodoFormRow: React.FC<TodoFormRowProps> = ({
 			</div>
 
 			<div className="grid max-w-sm items-center gap-1.5">
-				<Label>Deadline</Label>
+				{!isEditMode && <Label>Deadline</Label>}
 				<Popover>
 					<PopoverTrigger asChild>
 						<Button
@@ -96,7 +97,7 @@ const TodoFormRow: React.FC<TodoFormRowProps> = ({
 			</div>
 
 			<div className="grid max-w-sm items-center gap-1.5">
-				<Label>Priority</Label>
+				{!isEditMode && <Label>Priority</Label>}
 				<Select
 					name="priority"
 					defaultValue={todo?.priority ?? TodoPriority.Medium}
