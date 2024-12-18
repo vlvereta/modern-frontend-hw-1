@@ -1,5 +1,5 @@
-import { Todo, TodoPriority } from "@/types";
 import React from "react";
+import { Todo, TodoPriority } from "@/types";
 
 interface TodoFormRowProps {
 	todo?: Omit<Todo, "id" | "user_id" | "finished">;

@@ -1,13 +1,21 @@
 "use server";
 
 import { cookies } from "next/headers";
-import {
-	CreateTodoRequestPayload,
-	TodoPriority,
-	UpdateTodoRequestPayload,
-} from "./types";
-import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import { createClient } from "@/utils/supabase/server";
+import { TodoRequestPayload, TodoPriority } from "./types";
+
+const getTodoRequestPayload = (
+	formData: FormData
+): Omit<TodoRequestPayload, "user_id"> => ({
+	name: formData.get("name")?.toString() ?? "Awesome todo",
+	description: formData.get("description")?.toString(),
+	...(formData.get("until")?.toString() && {
+		until: formData.get("until")?.toString(),
+	}),
+	priority: (formData.get("priority")?.toString() ??
+		TodoPriority.Medium) as TodoPriority,
+});
 
 export async function addTodo(formData: FormData) {
 	const cookieStore = await cookies();
@@ -15,12 +23,9 @@ export async function addTodo(formData: FormData) {
 
 	const user_id = 1; // TODO: Get user_id from authentication
 
-	const payload: CreateTodoRequestPayload = {
+	const payload: TodoRequestPayload = {
 		user_id,
-		name: formData.get("name")?.toString() ?? "",
-		description: formData.get("description")?.toString() ?? "",
-		until: "2024-12-18", // TODO: Parse date
-		priority: (formData.get("priority")?.toString() ?? "") as TodoPriority,
+		...getTodoRequestPayload(formData),
 	};
 
 	console.log("Adding todo with payload:", payload);
@@ -35,12 +40,9 @@ export async function updateTodo(id: number, formData: FormData) {
 
 	const user_id = 1; // TODO: Get user_id from authentication
 
-	const payload: UpdateTodoRequestPayload = {
+	const payload: TodoRequestPayload = {
 		user_id,
-		name: formData.get("name")?.toString() ?? "",
-		description: formData.get("description")?.toString() ?? "",
-		until: "2024-12-18", // TODO: Parse date
-		priority: (formData.get("priority")?.toString() ?? "") as TodoPriority,
+		...getTodoRequestPayload(formData),
 	};
 
 	console.log(`Updating todo with id ${id} with payload:`, payload);

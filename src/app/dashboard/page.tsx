@@ -8,8 +8,13 @@ export default async function Dashboard() {
 	const cookieStore = await cookies();
 	const supabase = createClient(cookieStore);
 
-	const { data: todos } = await supabase.from("todos").select("*");
-	console.log("Todos:", todos);
+	const user_id = 1; // TODO: Get user_id from authentication
+
+	const { data: todos } = await supabase
+		.from("todos")
+		.select("*")
+		.order("created_at", { ascending: true })
+		.eq("user_id", user_id);
 
 	return (
 		<>
