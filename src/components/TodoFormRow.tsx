@@ -1,5 +1,21 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import { Todo, TodoPriority } from "@/types";
+import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "./ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { cn } from "@/lib/utils";
+import { CalendarIcon } from "lucide-react";
+import { Calendar } from "./ui/calendar";
 
 interface TodoFormRowProps {
 	todo?: Omit<Todo, "id" | "user_id" | "finished">;
@@ -14,70 +30,106 @@ const TodoFormRow: React.FC<TodoFormRowProps> = ({
 }) => {
 	const isEditMode = Boolean(todo?.name);
 
+	const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+		todo?.until ? new Date(todo.until) : undefined
+	);
+
+	console.log("selectedDate", selectedDate);
+
 	return (
-		<form className="mt-4 flex space-x-2" action={onSubmit}>
-			<div className="flex flex-col mb-2">
-				<label htmlFor="name" className="mb-1">
-					Name
-				</label>
-				<input
+		<form className="mt-4 flex space-x-2 items-end" action={onSubmit}>
+			<div className="grid w-full max-w-sm items-center gap-1.5">
+				<Label htmlFor="name">Name</Label>
+				<Input
 					type="text"
 					id="name"
 					name="name"
-					className="border p-2"
 					defaultValue={todo?.name}
+					placeholder="Name"
 				/>
 			</div>
-			<div className="flex flex-col mb-2">
-				<label htmlFor="description" className="mb-1">
-					Description
-				</label>
-				<input
+			<div className="grid w-full max-w-sm items-center gap-1.5">
+				<Label htmlFor="description">Description</Label>
+				<Input
 					type="text"
 					id="description"
 					name="description"
-					className="border p-2"
 					defaultValue={todo?.description}
+					placeholder="Description"
 				/>
 			</div>
-			<div className="flex flex-col mb-2">
-				<label htmlFor="until" className="mb-1">
-					Deadline
-				</label>
+
+			<div className="grid max-w-sm items-center gap-1.5">
+				<Label>Deadline</Label>
+				<Popover>
+					<PopoverTrigger asChild>
+						<Button
+							variant="outline"
+							className={cn(
+								"w-[240px] pl-3 text-left font-normal",
+								!selectedDate && "text-muted-foreground"
+							)}
+						>
+							{selectedDate ? (
+								selectedDate.toLocaleDateString()
+							) : (
+								<span>Pick a date</span>
+							)}
+							<CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+						</Button>
+					</PopoverTrigger>
+					<PopoverContent className="w-auto p-0" align="start">
+						<Calendar
+							mode="single"
+							selected={selectedDate ?? new Date()}
+							onSelect={setSelectedDate}
+							initialFocus
+							ISOWeek
+						/>
+					</PopoverContent>
+				</Popover>
 				<input
-					type="date"
-					id="until"
+					type="hidden"
 					name="until"
-					className="border p-2"
-					defaultValue={todo?.until}
+					value={selectedDate?.toISOString() ?? ""}
 				/>
 			</div>
-			<div className="flex flex-col mb-2">
-				<label htmlFor="priority" className="mb-1">
-					Priority
-				</label>
-				<select id="priority" name="priority" className="border p-2">
-					<option value="High">{TodoPriority.High}</option>
-					<option value="Medium">{TodoPriority.Medium}</option>
-					<option value="Low">{TodoPriority.Low}</option>
-				</select>
+
+			<div className="grid max-w-sm items-center gap-1.5">
+				<Label>Priority</Label>
+				<Select
+					name="priority"
+					defaultValue={todo?.priority ?? TodoPriority.Medium}
+				>
+					<SelectTrigger className="w-[100px]">
+						<SelectValue placeholder="Priority" />
+					</SelectTrigger>
+					<SelectContent>
+						<SelectItem value={TodoPriority.High}>High</SelectItem>
+						<SelectItem value={TodoPriority.Medium}>Medium</SelectItem>
+						<SelectItem value={TodoPriority.Low}>Low</SelectItem>
+					</SelectContent>
+				</Select>
 			</div>
 			{isEditMode ? (
 				<div className="ml-4 flex space-x-2">
-					<button className="text-green-500 hover:text-green-700" type="submit">
+					<Button
+						type="submit"
+						variant="outline"
+						className="text-green-500 hover:text-green-700"
+					>
 						Accept
-					</button>
-					<button
-						className="text-red-500 hover:text-red-700"
+					</Button>
+					<Button
+						variant="outline"
 						onClick={onCancel}
+						className="text-red-500 hover:text-red-700"
 					>
 						Dismiss
-					</button>
+					</Button>
 				</div>
 			) : (
-				<button type="submit" className="bg-blue-500 text-white p-2 mt-2">
-					Add Todo
-				</button>
+				<Button type="submit">Add Todo</Button>
 			)}
 		</form>
 	);
